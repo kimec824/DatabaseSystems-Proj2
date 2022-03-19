@@ -70,6 +70,9 @@ Four EduBfM_SetDirty(
     /*@ Is the paramter valid? */
     if (IS_BAD_BUFFERTYPE(type)) ERR(eBADBUFFERTYPE_BFM);
 
+    index = edubfm_LookUp(trainId, type);
+    BI_BITS(type, index) = DIRTY;
+
 
 
     return( eNOERROR );

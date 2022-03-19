@@ -195,10 +195,10 @@ typedef struct {
 #define BI_HASHTABLE(type)	     (bufInfo[type].hashTable)
 
 /* Macro: BI_HASHTABLEENTRY(type,idx)
- * Description: return the idx-th element of the buffer table
+ * Description: return the idx-th element of the hash table
  * Parameters:
  *  Four type       : buffer type
- *  Four idx        : array index of the buffer table element
+ *  Four idx        : array index of the hash table element
  * Returns: (Two) idx-th element
  */
 #define BI_HASHTABLEENTRY(type,idx)  (*(BI_HASHTABLE(type) + idx))

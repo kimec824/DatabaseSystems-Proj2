@@ -83,6 +83,34 @@ Four EduBfM_GetTrain(
     /* Is the buffer type valid? */
     if(IS_BAD_BUFFERTYPE(type)) ERR(eBADBUFFERTYPE_BFM);	
 
+    //lookup 이용하여 hash key value 계산
+    // index = edubfm_LookUp(trainId, type);
+
+    //buffer table을 돌면서 volNo, pageNo 비교해서 내가 넣으려는 page가 없으면 아래의 과정 수행.
+    //있으면 fixed 증가시키기.
+
+    for(int i=0;i<BI_NBUFS(type);i++){
+        if(EQUALKEY(&BI_KEY(type, i), trainId)){
+            BI_FIXED(type, i)++;
+            return BI_BUFFER(type, i);
+        }
+    }
+     //buffer pool에서 buffer element 한개를 할당받음
+    index = edubfm_AllocTrain(type);
+    //page를 디스크에서 읽어와서 할당받은 buffer element에 저장함
+    edubfm_ReadTrain(&BI_KEY(type, index), retBuf, type);
+    //bufTable element를 갱신함
+    BfMHashKey temp;
+    temp.pageNo = trainId->pageNo;
+    temp.volNo = trainId->volNo;
+    BI_KEY(type, index) = temp;
+    BI_FIXED(type, index)++;
+    BI_BITS(type, index) = 4;
+    //array index를 hashTable에 삽입함
+    edubfm_Insert(trainId, index, type);
+    //할당받은 buffer element에 대한 포인터를 반환함
+    return *retBuf;
+
 
 
     return(eNOERROR);   /* No error */

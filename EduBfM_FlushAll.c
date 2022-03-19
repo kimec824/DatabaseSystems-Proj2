@@ -60,6 +60,13 @@ Four EduBfM_FlushAll(void)
     Two         i;                      /* index */
     Four        type;                   /* buffer type */
 
+    for(type = 0; type < 2; type ++){
+        for(i = 0; i<BI_NBUFS(type); i++){
+            if(BI_BITS(type, i) == DIRTY){
+                edubfm_FlushTrain(&BI_KEY(type, i), type);
+            }
+        }
+    }
     
 
     return( eNOERROR );

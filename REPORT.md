@@ -1,8 +1,8 @@
 # EduBfM Report
 
-Name:
+Name: Eunchae Kim
 
-Student id:
+Student id: 20180297
 
 # Problem Analysis
 

@@ -66,11 +66,18 @@ Four edubfm_FlushTrain(
 {
     Four 			e;			/* for errors */
     Four 			index;			/* for an index */
-
-
+    
 	/* Error check whether using not supported functionality by EduBfM */
 	if (RM_IS_ROLLBACK_REQUIRED()) ERR(eNOTSUPPORTED_EDUBFM);
-
+    //lookup 함수 이용해서 buffer element의 array index 찾기
+    index = edubfm_LookUp(trainId, type);
+    //array index를 이용해서 찾은 buffer element의 dirty bit가 1인 경우 
+    if(BI_BITS(type, index) & DIRTY != 0){
+        //해당 page/train을 disk에 기록(RDsM_WriteTrain 이용)
+        RDsM_WriteTrain(BI_BUFFER(type, index), trainId, BI_BUFSIZE(type));
+        //Dirty bit unset
+        BI_BITS(type, index)--;
+    }
 
 	
     return( eNOERROR );
