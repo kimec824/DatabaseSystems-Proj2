@@ -90,15 +90,14 @@ Four edubfm_Insert(
         ERR( eBADBUFINDEX_BFM );
     
     //key 값 이용하여 hash key value 계산하기
-     hashValue = (key->pageNo + key->volNo) % HASHTABLESIZE(type);
+    hashValue = (key->pageNo + key->volNo) % HASHTABLESIZE(type);
     //해당 hash key value에 해당하는 hash table 자리에서 collision 발생하는지 살피기
     if(BI_HASHTABLEENTRY(type, hashValue) != -1){
         //발생하면 해당 buffer element의 nextHashEntry 변수에 array index를 저장(hash table entry)
         BI_NEXTHASHENTRY(type, index) = BI_HASHTABLEENTRY(type, hashValue);
-        // BI_NEXTHASHENTRY(type, index) = 100;
         BI_HASHTABLEENTRY(type, hashValue) = index;
     }
-    //collision 발생 안할 시새로운 array index를 삽입
+    //collision 발생 안할 시 새로운 array index를 삽입
     else{
         BI_HASHTABLEENTRY(type, hashValue) = index;
     }
@@ -134,29 +133,34 @@ Four edubfm_Delete(
     Two                 i, prev;                
     Two                 hashValue;
     CHECKKEY(key);    /*@ check validity of key */
+
     //삭제할 hash key value 계산
-    hashValue = (key->pageNo + key->volNo) % HASHTABLESIZE(type);
+    hashValue =  (key->pageNo + key->volNo) % HASHTABLESIZE(type);
+
+    if (BI_HASHTABLEENTRY(type, hashValue) == NOTFOUND_IN_HTABLE) ERR( eNOTFOUND_BFM );
+
     //삭제하고자 하는 buffer element가 linked list 처음에 있는 경우
     //linked list head를 nextHashEntry에 있는 주소로 바꾸기
     if(EQUALKEY(&BI_KEY(type, BI_HASHTABLEENTRY(type, hashValue)), key)) {
         BI_HASHTABLEENTRY(type, hashValue) = BI_NEXTHASHENTRY(type, BI_HASHTABLEENTRY(type, hashValue));
+        BI_NEXTHASHENTRY(type, BI_HASHTABLEENTRY(type, hashValue)) = -1;
     }
     //삭제하고자 하는 buffer element가 linked list 중간에 있는 경우
     else{
-        i = hashValue;
+        i = BI_HASHTABLEENTRY(type, hashValue);
         while(BI_NEXTHASHENTRY(type, i) != -1){
-            printf("%d\n", i);
             prev = i;
             i = BI_NEXTHASHENTRY(type, i);
             if(EQUALKEY(&BI_KEY(type, i), key)){
                 BI_NEXTHASHENTRY(type, prev) = BI_NEXTHASHENTRY(type, i);
+                BI_NEXTHASHENTRY(type, i) = -1;
+                return 0;
             }
         }
     }
-    return 0;
-    
+    // ERR( eNOTFOUND_BFM );
+    return eNOTFOUND_BFM;
 
-    ERR( eNOTFOUND_BFM );
 
 }  /* edubfm_Delete */
 
@@ -185,19 +189,23 @@ Four edubfm_LookUp(
 {
     Two                 i, j;                   /* indices */
     Two                 hashValue;
+    Two                 index;
 
     CHECKKEY(key);    /*@ check validity of key */
 
     hashValue = (key->pageNo + key->volNo) % HASHTABLESIZE(type);
-    // for(i = 0; i <= HASHTABLESIZE(type); i++)
-    // {
-    //     if(i == hashValue)
-    //     {
-    //         return BI_HASHTABLEENTRY(type, hashValue);
-    //     }
-    // }
-    return BI_HASHTABLEENTRY(type, hashValue);
-    // return (NOTFOUND_IN_HTABLE);
+    index = BI_HASHTABLEENTRY(type, hashValue);
+    if(EQUALKEY(&BI_KEY(type, index),key)) 
+        return BI_HASHTABLEENTRY(type, hashValue);
+    else{
+        while(BI_NEXTHASHENTRY(type, index)!= -1){
+            index = BI_NEXTHASHENTRY(type, index);
+            if(EQUALKEY(&BI_KEY(type, index),key)) 
+                return index;
+        }
+
+    }
+    return (NOTFOUND_IN_HTABLE);
     
 }  /* edubfm_LookUp */
 
@@ -221,17 +229,14 @@ Four edubfm_LookUp(
 Four edubfm_DeleteAll(void)
 {
     Two 	i;
-    Four        tableSize;
-    tableSize = HASHTABLESIZE(0);
-    for(i = 0;i < tableSize; i++){
-        BI_HASHTABLEENTRY(0,i) = -1;
-    }
-    tableSize = HASHTABLESIZE(1);
-    for(i = 0;i < tableSize; i++){
-        BI_HASHTABLEENTRY(1,i) = -1;
-    }
+    Four    tableSize;
+    for(Four type = 0; type <= 1; type++){
+        tableSize = HASHTABLESIZE(type);
+        for(i = 0;i < tableSize; i++){
+            BI_HASHTABLEENTRY(type,i) = -1;
+        }
 
-
+    }
     return(eNOERROR);
 
 } /* edubfm_DeleteAll() */ 

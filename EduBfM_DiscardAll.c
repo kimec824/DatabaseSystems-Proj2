@@ -59,14 +59,14 @@ Four EduBfM_DiscardAll(void)
     Two 	i;			/* index */
     Four 	type;			/* buffer type */
     BfMHashKey temp;
-    temp.pageNo = 0;
-    temp.volNo = 0;
+    temp.pageNo = -1;
+    temp.volNo = 1000;
     for(type = 0; type < 2; type ++){
         for(i = 0; i<BI_NBUFS(type); i++){
             BI_KEY(type, i) = temp;
             BI_FIXED(type, i) = 0;
-            BI_BITS(type, i) = NEW;
-            BI_NEXTHASHENTRY(type, i) = 0;
+            BI_BITS(type, i)  = 0;
+            // BI_NEXTHASHENTRY(type, i) = -1;
         }
     }
     edubfm_DeleteAll();

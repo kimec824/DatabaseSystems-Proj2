@@ -62,7 +62,7 @@ Four EduBfM_FlushAll(void)
 
     for(type = 0; type < 2; type ++){
         for(i = 0; i<BI_NBUFS(type); i++){
-            if(BI_BITS(type, i) == DIRTY){
+            if(BI_BITS(type, i) & DIRTY != 0){
                 edubfm_FlushTrain(&BI_KEY(type, i), type);
             }
         }

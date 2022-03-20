@@ -73,7 +73,7 @@ Four edubfm_ReadTrain(
 	/* Error check whether using not supported functionality by EduBfM */
 	if (RM_IS_ROLLBACK_REQUIRED()) ERR(eNOTSUPPORTED_EDUBFM);
     e = RDsM_ReadTrain(trainId, aTrain, BI_BUFSIZE(type));
-    if(e) return e; // RDsM ReadTrain이 에러가 나지 않은 경우에 무엇을 리턴하는지 모르겠음. 테스트 해봐야 알 것 같음.
+    if(e) return e; 
 
 
 

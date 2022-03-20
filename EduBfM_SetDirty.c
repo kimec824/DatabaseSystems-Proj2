@@ -71,7 +71,8 @@ Four EduBfM_SetDirty(
     if (IS_BAD_BUFFERTYPE(type)) ERR(eBADBUFFERTYPE_BFM);
 
     index = edubfm_LookUp(trainId, type);
-    BI_BITS(type, index) = DIRTY;
+    if(index == -1) return NOTFOUND_IN_HTABLE;
+    BI_BITS(type, index) |= DIRTY;
 
 
 

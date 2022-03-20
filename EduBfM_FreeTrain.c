@@ -65,12 +65,15 @@ Four EduBfM_FreeTrain(
 
     /*@ check if the parameter is valid. */
     if (IS_BAD_BUFFERTYPE(type)) ERR(eBADBUFFERTYPE_BFM);
-    
-    e=0;
     index = edubfm_LookUp(trainId, type);
+    if(index == NOTFOUND_IN_HTABLE) ERR(NOTFOUND_IN_HTABLE);
     if(BI_FIXED(type, index)>0)
         BI_FIXED(type, index) -= 1;
-    else return e;
+    else {
+        printf("fixed counter is less than 0!!!\n");
+        printf("trainId = {%d, %d}\n",trainId->pageNo,trainId->volNo);
+        //return eBADBUFFERTYPE_BFM;
+    }
 
 
     

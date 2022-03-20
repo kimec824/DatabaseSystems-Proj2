@@ -73,39 +73,25 @@ Four edubfm_AllocTrain(
 {
     Four 	e;			/* for error */
     Four 	victim = -1;			/* return value */
-    Four 	i;
+    Four 	i, index;
     Four    find_unfixed = 0;
     
 	/* Error check whether using not supported functionality by EduBfM */
 	if(sm_cfgParams.useBulkFlush) ERR(eNOTSUPPORTED_EDUBFM);
 
-    //bufferpool에서 buffer element 한개 할당 받기 -> buffer element 선정: fixed 변수 값이 0인 buffer element들을 순차적으로 방문,
-    //REFER bit가 0이면 할당 대상. REFER bit가 1이면 REFER bit 0으로 설정.
+    //모두 fixed인지 확인
     for(i = 0; i < BI_NBUFS(type); i++){
         if(BI_FIXED(type, i) == 0)
             find_unfixed++;
     }
-    if(find_unfixed == 0) return eNOUNFIXEDBUF_BFM;
-
-    for(i = 0; i < BI_NBUFS(type); i++){
-        if(BI_KEY(type, i).pageNo == -1){
-            victim = i;
-            BI_NEXTVICTIM(type) = (victim+1) % BI_NBUFS(type);
-            break;
-        }
-    }
+    if(find_unfixed == 0) ERR(eNOUNFIXEDBUF_BFM);
     while(victim == -1){//pageNo가 -1인 page가 없었을 경우. REFER bit로 victim 찾기
         if(!BI_FIXED(type, BI_NEXTVICTIM(type))){
-            printf("next victim: %d\n",BI_NEXTVICTIM(type));
             if((BI_BITS(type, BI_NEXTVICTIM(type)) & REFER) != 0){ //REFER bit가 1인 경우
-                printf("refer bit is 1: %d\n",BI_NEXTVICTIM(type));
-                printf("and 결과값: %d\n",BI_NEXTVICTIM(type) & REFER);
-                BI_BITS(type, BI_NEXTVICTIM(type)) = BI_BITS(type, BI_NEXTVICTIM(type)) ^ REFER;
-                printf("xor 결과값: %d\n",BI_BITS(type, BI_NEXTVICTIM(type)));
+                BI_BITS(type, BI_NEXTVICTIM(type)) ^= REFER;
             }
             else{ //REFER bit가 0인 경우
                 victim = BI_NEXTVICTIM(type);
-                break;
             }
         }
         BI_NEXTVICTIM(type) = (BI_NEXTVICTIM(type)+1) % BI_NBUFS(type);
@@ -113,18 +99,20 @@ Four edubfm_AllocTrain(
     //수정되었는지
     //해당 buffer element에 저장되어 있는 페이지/트레인이 수정 되었는가? -> 내용을 disk로 flush
     if(BI_BITS(type, victim) & DIRTY != 0) edubfm_FlushTrain(&BI_KEY(type, victim), type);
+
+    //해당 buffer element의 array index(hashTable entry)를 hashTable에서 삭제.
+    edubfm_Delete(&BI_KEY(type, victim), type);
+    
     //해당 buffer element에 대응하는 buf Table element 찾은 다음, 초기화
     //Question) 어떻게 초기화?
-    
     BfMHashKey temp;
-    temp.pageNo = 0;
-    temp.volNo = 0;
+    temp.pageNo = -1;
+    temp.volNo = 1000;
     BI_KEY(type, victim) = temp;
     BI_FIXED(type, victim) = 0;
     BI_BITS(type, victim) = 0;
     BI_NEXTHASHENTRY(type, victim) = -1;
-    //해당 buffer element의 array index(hashTable entry)를 hashTable에서 삭제.
-    edubfm_Delete(&BI_KEY(type, victim), type);
+    
     //해당 buffer element의 array index 반환
     return victim;
     

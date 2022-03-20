@@ -115,15 +115,6 @@ Four EduBfM_Test(Four volId, Boolean getcharFlag)
 		e = EduBfM_GetTrain(&pageID[i], (char **)&apage, PAGE_BUF);
 		if (e < eNOERROR) ERR(e);
 		printf("pageNo %d is inserted into buffer using GetTrain()\n", pageID[i].pageNo);
-		/////////////////////////
-		edubfm_dump_buffertable(PAGE_BUF);
-		printf("\t(Buffer Table)\n");
-		printf("\n");
-		edubfm_dump_hashtable(PAGE_BUF);
-		printf("\t(Hash Table)\n");
-		press_enter_for_continue(getcharFlag);
-		printf("\n\n");
-		/////////////////////
 	}
 	press_enter_for_continue(getcharFlag);
 	printf("\n---------------------------------- Result ----------------------------------\n");
