@@ -84,16 +84,13 @@ Four EduBfM_GetTrain(
     /* Is the buffer type valid? */
     if(IS_BAD_BUFFERTYPE(type)) ERR(eBADBUFFERTYPE_BFM);	
 
-    //없으면 아래의 과정 수행.
-    //buffer pool에서 buffer element 한개를 할당받음
     BfMHashKey temp;
     temp.pageNo = trainId->pageNo;
     temp.volNo = trainId->volNo;
     index = edubfm_LookUp(&temp, type);
-    if(index == NOTFOUND_IN_HTABLE){//버퍼에 존재 X
+    if(index == NOTFOUND_IN_HTABLE){//버퍼에 존재 하지 않음
         victim = edubfm_AllocTrain(type);
         //page를 디스크에서 읽어와서 할당받은 buffer element에 저장함
-        //&BI_KEY(type, victim)
         BI_KEY(type, victim) = temp;
         BI_FIXED(type, victim) = 1;
         BI_BITS(type, victim) = 4;

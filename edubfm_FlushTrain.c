@@ -76,7 +76,6 @@ Four edubfm_FlushTrain(
     if(BI_BITS(type, index) & DIRTY != 0){
         //해당 page/train을 disk에 기록(RDsM_WriteTrain 이용)
         e = RDsM_WriteTrain(BI_BUFFER(type, index), trainId, BI_BUFSIZE(type));
-        //printf("flush %d\n",index);
         //Dirty bit unset
         if(e<0) {printf("rdsm write error: %s\n",e); ERR(e); }
         BI_BITS(type, index)--;

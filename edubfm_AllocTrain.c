@@ -96,15 +96,12 @@ Four edubfm_AllocTrain(
         }
         BI_NEXTVICTIM(type) = (BI_NEXTVICTIM(type)+1) % BI_NBUFS(type);
     }
-    //수정되었는지
-    //해당 buffer element에 저장되어 있는 페이지/트레인이 수정 되었는가? -> 내용을 disk로 flush
     if(BI_BITS(type, victim) & DIRTY != 0) edubfm_FlushTrain(&BI_KEY(type, victim), type);
 
     //해당 buffer element의 array index(hashTable entry)를 hashTable에서 삭제.
     edubfm_Delete(&BI_KEY(type, victim), type);
     
     //해당 buffer element에 대응하는 buf Table element 찾은 다음, 초기화
-    //Question) 어떻게 초기화?
     BfMHashKey temp;
     temp.pageNo = -1;
     temp.volNo = 1000;
