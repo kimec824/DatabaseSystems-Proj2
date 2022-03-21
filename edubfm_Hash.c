@@ -143,7 +143,7 @@ Four edubfm_Delete(
     //linked list head를 nextHashEntry에 있는 주소로 바꾸기
     if(EQUALKEY(&BI_KEY(type, BI_HASHTABLEENTRY(type, hashValue)), key)) {
         BI_HASHTABLEENTRY(type, hashValue) = BI_NEXTHASHENTRY(type, BI_HASHTABLEENTRY(type, hashValue));
-        BI_NEXTHASHENTRY(type, BI_HASHTABLEENTRY(type, hashValue)) = -1;
+        //BI_NEXTHASHENTRY(type, BI_HASHTABLEENTRY(type, hashValue)) = -1;
     }
     //삭제하고자 하는 buffer element가 linked list 중간에 있는 경우
     else{
@@ -153,7 +153,7 @@ Four edubfm_Delete(
             i = BI_NEXTHASHENTRY(type, i);
             if(EQUALKEY(&BI_KEY(type, i), key)){
                 BI_NEXTHASHENTRY(type, prev) = BI_NEXTHASHENTRY(type, i);
-                BI_NEXTHASHENTRY(type, i) = -1;
+                //BI_NEXTHASHENTRY(type, i) = -1;
                 return 0;
             }
         }

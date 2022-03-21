@@ -75,12 +75,12 @@ Four edubfm_FlushTrain(
     //array index를 이용해서 찾은 buffer element의 dirty bit가 1인 경우 
     if(BI_BITS(type, index) & DIRTY != 0){
         //해당 page/train을 disk에 기록(RDsM_WriteTrain 이용)
-        RDsM_WriteTrain(BI_BUFFER(type, index), trainId, BI_BUFSIZE(type));
+        e = RDsM_WriteTrain(BI_BUFFER(type, index), trainId, BI_BUFSIZE(type));
         //printf("flush %d\n",index);
         //Dirty bit unset
+        if(e<0) {printf("rdsm write error: %s\n",e); ERR(e); }
         BI_BITS(type, index)--;
     }
-
 	
     return( eNOERROR );
 

@@ -84,23 +84,13 @@ Four EduBfM_GetTrain(
     /* Is the buffer type valid? */
     if(IS_BAD_BUFFERTYPE(type)) ERR(eBADBUFFERTYPE_BFM);	
 
-    //lookup 이용하여 hash key value 계산
-    // index = edubfm_LookUp(trainId, type);
-
-    //buffer table을 돌면서 volNo, pageNo 비교해서 내가 넣으려는 page가 있으면 fixed 증가시키기.
-    // for(int i=0;i<BI_NBUFS(type);i++){
-    //     if(EQUALKEY(&BI_KEY(type, i), trainId)){
-    //         BI_FIXED(type, i)++;
-    //         return BI_BUFFER(type, i);
-    //     }
-    // }
     //없으면 아래의 과정 수행.
     //buffer pool에서 buffer element 한개를 할당받음
     BfMHashKey temp;
     temp.pageNo = trainId->pageNo;
     temp.volNo = trainId->volNo;
     index = edubfm_LookUp(&temp, type);
-    if(index == -1){//버퍼에 존재 X
+    if(index == NOTFOUND_IN_HTABLE){//버퍼에 존재 X
         victim = edubfm_AllocTrain(type);
         //page를 디스크에서 읽어와서 할당받은 buffer element에 저장함
         //&BI_KEY(type, victim)
@@ -108,7 +98,7 @@ Four EduBfM_GetTrain(
         BI_FIXED(type, victim) = 1;
         BI_BITS(type, victim) = 4;
         edubfm_Insert(&BI_KEY(type, victim), victim, type);
-        edubfm_ReadTrain(trainId, BI_BUFFER(type, victim), type);
+        edubfm_ReadTrain(&BI_KEY(type, victim), BI_BUFFER(type, victim), type);
         *retBuf = BI_BUFFER(type, victim);
     }
     else{//버퍼에 존재함
